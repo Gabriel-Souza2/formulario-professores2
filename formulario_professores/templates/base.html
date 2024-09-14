@@ -8,13 +8,8 @@
     {% load static %}
     <link rel="stylesheet" href="{% static 'css/output.css' %}" type="text/css">
 </head>
-<body class="bg-gray-100 flex items-center justify-center min-h-screen">
-    <form method="POST" action="{% url 'logout' %}">
-        {% csrf_token %}
-        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
-            Logout
-        </button>
-    </form>
+<body class="bg-gray-100 min-h-screen">
+    
     {% block conteudo %}
     <!-- Aqui o formulário será inserido nos templates filhos -->
     {% endblock %}

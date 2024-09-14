@@ -2,6 +2,33 @@
 
 {% block titulo %}Aulas{% endblock %}
 {% block conteudo %}
+    <nav class="bg-white border-b border-gray-300 p-4">
+        <div class="container mx-auto flex items-center">
+            <!-- Logo e Saudação à esquerda -->
+            <div class="flex items-center space-x-5">
+                <a href="/" class="text-black text-lg font-bold">Minha Aplicação</a>
+                {% if user.is_authenticated %}
+                    <span class="text-gray-700">Bem-vindo, {{ user.username }}!</span>
+                {% endif %}
+            </div>
+
+            <!-- Botão de Logout à direita -->
+            <div class="ml-2">
+                {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                        Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
     <div class="container mx-auto">
         <h1 class="text-3xl font-bold text-center mb-6">Aulas Cadastradas</h1>
 

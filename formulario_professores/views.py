@@ -6,7 +6,7 @@ from .models import Aula
 
 @login_required
 def listar_aulas(request):
-    aulas = Aula.objects.all()  # Busca todas as aulas cadastradas
+    aulas = Aula.objects.filter(usuario=request.user)
     return render(request, 'listar.html', {'aulas': aulas})
 
 @login_required
@@ -14,11 +14,12 @@ def cadastrar_aula(request):
     if request.method == 'POST':
         form = AulaForm(request.POST)
         if form.is_valid():
-            form.save()  # Salva os dados no banco de dados
-            return redirect('sucesso')  # Redireciona para uma página de sucesso ou outra view
+            aula = form.save(commit=False)  # Não salva ainda no banco de dados
+            aula.usuario = request.user  # Associa o usuário logado à aula
+            aula.save()  # Agora salva no banco de dados
+            return redirect('listar_aulas')  # Redireciona para a listagem de aulas
     else:
         form = AulaForm()
-
     return render(request, 'formulario.html', {'form': form, 'titulo': 'Cadastrar aula', 'mensagem_botao': 'Enviar'})
 
 @login_required
