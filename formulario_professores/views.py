@@ -20,6 +20,7 @@ def cadastrar_aula(request):
             return redirect('listar_aulas')  # Redireciona para a listagem de aulas
     else:
         form = AulaForm()
+
     return render(request, 'formulario.html', {'form': form, 'titulo': 'Cadastrar aula', 'mensagem_botao': 'Enviar'})
 
 @login_required

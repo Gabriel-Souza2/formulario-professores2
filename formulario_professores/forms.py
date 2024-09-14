@@ -5,10 +5,12 @@ import re
 class AulaForm(forms.ModelForm):
     class Meta:
         model = Aula
-        fields = ['disciplina', 'quantidade_aulas', 'data_aulas', 'professor', 'contato']
+        fields = ['disciplina', 'quantidade_aulas', 'data_aulas', 'professor', 'contato', 'dias_antes', 'mensagem_notificacao']
         widgets = {
             'data_aulas': forms.DateInput(attrs={'type': 'date', 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'}),
             'contato': forms.TextInput(attrs={ 'type':'tel','placeholder': 'Telefone de Contato', 'class': 'w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'}),
+            'data_aulas': forms.DateInput(attrs={'type': 'date'}),
+            'mensagem_notificacao': forms.Textarea(attrs={'rows': 3}),
         }
 
     # Validação personalizada para o campo 'contato'

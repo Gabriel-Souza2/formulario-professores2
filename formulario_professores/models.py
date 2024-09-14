@@ -10,5 +10,9 @@ class Aula(models.Model):
     professor = models.CharField(max_length=100)
     contato = models.CharField(max_length=20)
 
+    dias_antes = models.IntegerField(default=3, help_text="Quantos dias antes você deseja ser avisado?")
+    
+    mensagem_notificacao = models.TextField(blank=True, help_text="Mensagem personalizada para a notificação.")
+
     def __str__(self):
         return f'{self.disciplina} - {self.professor}'
