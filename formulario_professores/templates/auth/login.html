@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Login</h2>
+
+        <form method="POST" action="{% url 'login' %}">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="username" class="block text-gray-700 font-semibold mb-2">Usuário</label>
+                <input type="text" name="username" id="username" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+
+            <div class="mb-4">
+                <label for="password" class="block text-gray-700 font-semibold mb-2">Senha</label>
+                <input type="password" name="password" id="password" class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+            </div>
+
+            <div class="flex justify-center mt-4">
+                <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600">
+                    Entrar
+                </button>
+            </div>
+        </form>
+
+        <!-- Exibe erros de login -->
+        {% if form.errors %}
+            <p class="text-red-500 text-center mt-4">{{ form.errors.username.0 }}</p>
+        {% endif %}
+    </div>
+
+</body>
+</html>
