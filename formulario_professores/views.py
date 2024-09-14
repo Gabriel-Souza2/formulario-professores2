@@ -28,7 +28,14 @@ def editar_aula(request, aula_id):
             return redirect('listar_aulas')
     else:
         form = AulaForm(instance=aula)
-    return render(request, 'editar_aula.html', {'form': form, 'aula': aula})
+    return render(request, 'formulario.html', {'form': form, 'aula': aula})
+
+def excluir_aula(request, aula_id):
+    aula = get_object_or_404(Aula, id=aula_id)
+    if request.method == 'POST':
+        aula.delete()  # Exclui a aula
+        return redirect('listar_aulas')
+    return render(request, 'excluir.html', {'aula': aula})
 
 def sucesso(request):
     return render(request, 'sucesso.html')
