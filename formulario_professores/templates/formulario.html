@@ -12,41 +12,67 @@
 
     <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
         <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Cadastro de Aulas</h2>
-        <form action="#" method="POST">
 
+        <!-- Exibe erros gerais do formulário -->
+        {% if form.errors %}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form action="/cadastrar/" method="POST">
+            {% csrf_token %}
+            
             <!-- Campo Disciplina -->
             <div class="mb-4">
                 <label for="disciplina" class="block text-gray-700 font-semibold mb-2">Disciplina</label>
-                <input type="text" id="disciplina" name="disciplina" placeholder="Nome da Disciplina" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {{ form.disciplina }}
+                <!-- Exibe erros do campo específico -->
+                {% if form.disciplina.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.disciplina.errors.0 }}</p>
+                {% endif %}
             </div>
 
             <!-- Campo Quantidade de Aulas -->
             <div class="mb-4">
                 <label for="quantidade_aulas" class="block text-gray-700 font-semibold mb-2">Quantidade de Aulas</label>
-                <input type="number" id="quantidade_aulas" name="quantidade_aulas" placeholder="Número de Aulas" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {{ form.quantidade_aulas }}
+                {% if form.quantidade_aulas.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.quantidade_aulas.errors.0 }}</p>
+                {% endif %}
             </div>
 
             <!-- Campo Datas das Aulas -->
             <div class="mb-4">
-                <label for="datas_aulas" class="block text-gray-700 font-semibold mb-2">Datas das Aulas</label>
-                <input type="date" id="datas_aulas" name="datas_aulas" placeholder="Escolha as datas" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                <label for="data_aulas" class="block text-gray-700 font-semibold mb-2">Data das Aulas</label>
+                {{ form.data_aulas }}
+                {% if form.data_aulas.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.data_aulas.errors.0 }}</p>
+                {% endif %}
             </div>
 
             <!-- Campo Professor -->
             <div class="mb-4">
                 <label for="professor" class="block text-gray-700 font-semibold mb-2">Professor</label>
-                <input type="text" id="professor" name="professor" placeholder="Nome do Professor" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {{ form.professor }}
+                {% if form.professor.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.professor.errors.0 }}</p>
+                {% endif %}
             </div>
 
             <!-- Campo Contato -->
             <div class="mb-4">
                 <label for="contato" class="block text-gray-700 font-semibold mb-2">Contato</label>
-                <input type="tel" id="contato" name="contato" placeholder="Telefone de Contato" 
-                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                {{ form.contato }}
+                {% if form.contato.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.contato.errors.0 }}</p>
+                {% endif %}
             </div>
 
             <!-- Botão de Enviar -->
