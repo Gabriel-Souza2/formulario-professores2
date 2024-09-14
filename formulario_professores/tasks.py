@@ -1,6 +1,6 @@
 from datetime import timedelta
 from django.utils import timezone
-from .models import Aula
+from formulario_professores.models import Aula
 import requests
 from celery import shared_task
 from django.conf import settings
@@ -14,17 +14,17 @@ def enviar_notificacao_whatsapp(professor_nome, contato, mensagem):
     :param mensagem: Mensagem a ser enviada
     """
     # Configurar os detalhes da Z-API
-    zapi_url = f"https://api.z-api.io/instances/{settings.ZAPI_INSTANCE_ID}/token/{settings.ZAPI_TOKEN}/send-messages"
+    zapi_url = f"https://api.z-api.io/instances/{settings.ZAPI_INSTANCE_ID}/token/{settings.ZAPI_TOKEN}/send-text"
     
     # Conteúdo da mensagem a ser enviada
     payload = {
-        "phone": contato,
+        "phone": '+5511945146976',
         "message": f"Olá, {professor_nome}! {mensagem}"
     }
 
     # Fazer a requisição POST para a API da Z-API
     try:
-        response = requests.post(zapi_url, json=payload)
+        response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': 'F5c26271a53fc44ec8a6802a404bbe49dS'})
         response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
         return response.json()  # Retorna a resposta da API se tudo ocorrer bem
     except requests.RequestException as e:
@@ -37,6 +37,7 @@ def verificar_aulas_e_notificar():
     """
     Verifica as aulas que estão chegando e envia notificações para os professores.
     """
+
     hoje = timezone.now().date()
     
     # Obtenha todas as aulas que ainda não ocorreram

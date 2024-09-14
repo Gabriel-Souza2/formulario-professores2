@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_beat',
     'formulario_professores'
 ]
 
@@ -105,9 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-BR'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Sao_Paulo'
 
 USE_I18N = True
 
@@ -135,15 +136,14 @@ CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
 
 
 CELERY_BEAT_SCHEDULE = {
-    'add-every-30-seconds': {
-        'task': 'formulario_professores.tasks.add',
-        'schedule': 30.0,  # A cada 30 segundos
-        'args': (16, 16),  # Argumentos para a tarefa
-    },
-
-    'enviar_notificacoes_diariamente': {
-        'task': 'formulario_professores.tasks.enviar_notificacao_aula',
-        #'schedule': 86400.0,  # Executa a cada 24 horas (86400 segundos)
-        'schedule': 3600.0,  # Executa a cada 24 horas (86400 segundos)
+    'verificar-aulas-diariamente': {
+        'task': 'formulario_professores.tasks.verificar_aulas_e_notificar',
+        'schedule': crontab(minute='*/3'),  # Executa todos os dias à meia-noite
     },
 }
+
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
+
+#Z-API
+ZAPI_INSTANCE_ID = '3D54FB8C0592D02FF32D42690085FC51'
+ZAPI_TOKEN = 'FC61DB19DC7891BC1FF83BB4'
