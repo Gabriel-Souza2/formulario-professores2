@@ -17,7 +17,7 @@ def cadastrar_aula(request):
     else:
         form = AulaForm()
 
-    return render(request, 'formulario.html', {'form': form})
+    return render(request, 'formulario.html', {'form': form, 'titulo': 'Cadastrar aula', 'mensagem_botao': 'Enviar'})
 
 def editar_aula(request, aula_id):
     aula = get_object_or_404(Aula, id=aula_id)  # Busca a aula pelo ID ou retorna 404
@@ -28,7 +28,7 @@ def editar_aula(request, aula_id):
             return redirect('listar_aulas')
     else:
         form = AulaForm(instance=aula)
-    return render(request, 'formulario.html', {'form': form, 'aula': aula})
+    return render(request, 'formulario.html', {'form': form, 'aula': aula, 'titulo': 'Editar aula', 'mensagem_botao': 'Salvar'})
 
 def excluir_aula(request, aula_id):
     aula = get_object_or_404(Aula, id=aula_id)
