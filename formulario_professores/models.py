@@ -14,5 +14,12 @@ class Aula(models.Model):
     
     mensagem_notificacao = models.TextField(blank=True, help_text="Mensagem personalizada para a notificação.")
 
+    def save(self, *args, **kwargs):
+        # Verifica se o número já não tem o prefixo +55
+        if not self.contato.startswith('+55'):
+            # Adiciona o prefixo +55 ao número
+            self.contato = '+55' + self.contato
+        super(Aula, self).save(*args, **kwargs)
+    
     def __str__(self):
         return f'{self.disciplina} - {self.professor}'
