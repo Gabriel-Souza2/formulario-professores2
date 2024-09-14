@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from celery.schedules import crontab
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -127,3 +128,22 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_URL = '/login/'
 LOGIN_REDIRECT_URL = '/aulas/'  # Após o login bem-sucedido, redirecionar para a página de listagem de aulas
 LOGOUT_REDIRECT_URL = '/login/'  # Após o logout, redirecionar para a página de login
+
+#Celery
+CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Verifique se o Redis está rodando nessa URL
+CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+
+
+CELERY_BEAT_SCHEDULE = {
+    'add-every-30-seconds': {
+        'task': 'formulario_professores.tasks.add',
+        'schedule': 30.0,  # A cada 30 segundos
+        'args': (16, 16),  # Argumentos para a tarefa
+    },
+
+    'enviar_notificacoes_diariamente': {
+        'task': 'formulario_professores.tasks.enviar_notificacao_aula',
+        #'schedule': 86400.0,  # Executa a cada 24 horas (86400 segundos)
+        'schedule': 3600.0,  # Executa a cada 24 horas (86400 segundos)
+    },
+}
