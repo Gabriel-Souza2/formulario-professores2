@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-imd7n1@2kq3=5*&$@*a)coc-mr@%h-(*jr&a_-h9qp817a(d(c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [http://formulario.gabrielsouzadev.com]
+ALLOWED_HOSTS = ['formulario.gabrielsouzadev.com']
 
 
 # Application definition
