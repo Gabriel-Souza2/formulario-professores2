@@ -26,7 +26,7 @@ SECRET_KEY = 'django-insecure-imd7n1@2kq3=5*&$@*a)coc-mr@%h-(*jr&a_-h9qp817a(d(c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [http://formulario.gabrielsouzadev.com]
 
 
 # Application definition
@@ -138,7 +138,7 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_BEAT_SCHEDULE = {
     'verificar-aulas-diariamente': {
         'task': 'formulario_professores.tasks.verificar_aulas_e_notificar',
-        'schedule': crontab(minute='*/30'),  # Executa todos os dias à meia-noite
+        'schedule': crontab(minute='*/3'),  # Executa todos os dias à meia-noite
     },
 }
 

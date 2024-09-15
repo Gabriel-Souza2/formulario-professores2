@@ -1,12 +1,15 @@
 from django.urls import path
 from django.contrib.auth import views as auth_views
 from .views import CustomLoginView
+from django.views.generic import RedirectView
 
 
 
 from . import views
 
 urlpatterns = [
+    path('', RedirectView.as_view(url='aulas/', permanent=True)),
+
     path('cadastrar/', views.cadastrar_aula, name='cadastrar_aula'),
     path('sucesso/', views.sucesso, name='sucesso'),  # Uma página simples de sucesso
     path('aulas/', views.listar_aulas, name='listar_aulas'),
