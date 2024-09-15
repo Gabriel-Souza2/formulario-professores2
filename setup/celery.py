@@ -1,11 +1,12 @@
 from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery
+from django.conf import settings
 
 # Define o módulo de configurações padrão para o Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'setup.settings')
 
-app = Celery('formulario_professores')
+app = Celery('formulario_professores', broker=settings.CELERY_BROKER_URL)
 
 # Carrega as configurações do Django no Celery
 app.config_from_object('django.conf:settings', namespace='CELERY')

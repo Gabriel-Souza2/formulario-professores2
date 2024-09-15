@@ -131,14 +131,14 @@ LOGIN_REDIRECT_URL = '/aulas/'  # Após o login bem-sucedido, redirecionar para 
 LOGOUT_REDIRECT_URL = '/login/'  # Após o logout, redirecionar para a página de login
 
 #Celery
-CELERY_BROKER_URL = 'redis://localhost:6379/0'  # Verifique se o Redis está rodando nessa URL
-CELERY_RESULT_BACKEND = 'redis://localhost:6379/0'
+CELERY_BROKER_URL = 'redis://redis:6379/0'  # Verifique se o Redis está rodando nessa URL
+CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 
 
 CELERY_BEAT_SCHEDULE = {
     'verificar-aulas-diariamente': {
         'task': 'formulario_professores.tasks.verificar_aulas_e_notificar',
-        'schedule': crontab(minute='*/3'),  # Executa todos os dias à meia-noite
+        'schedule': crontab(minute='*/5'),  # Executa todos os dias à meia-noite
     },
 }
 

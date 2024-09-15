@@ -8,7 +8,7 @@ from datetime import datetime
 import time
 
 @shared_task
-def enviar_notificacao_whatsapp(professor_nome, contato, mensagem):
+def enviar_notificacao_whatsapp(contato, mensagem):
     """
     Envia uma mensagem via WhatsApp usando a Z-API.
     :param professor_nome: Nome do professor
@@ -21,7 +21,7 @@ def enviar_notificacao_whatsapp(professor_nome, contato, mensagem):
     # Conteúdo da mensagem a ser enviada
     payload = {
         "phone": contato,
-        "message": f"Olá, {professor_nome}! {mensagem}"
+        "message": f"{mensagem}"
     }
 
     # Fazer a requisição POST para a API da Z-API
@@ -52,7 +52,7 @@ def verificar_aulas_e_notificar():
             mensagem = aula.mensagem_notificacao or f"Sua aula de {aula.disciplina} está agendada para {aula.data_aulas}."
             
             # Enviar a mensagem via WhatsApp
-            enviar_notificacao_whatsapp.delay(aula.professor, aula.contato, mensagem)
+            enviar_notificacao_whatsapp.delay(aula.contato, mensagem)
 
             time.sleep(120)
 
@@ -72,7 +72,7 @@ def notificar_no_dia_da_aula(aula_id):
             mensagem = aula.mensagem_notificacao or f"Sua aula de {aula.disciplina} está agendada para hoje."
             
             # Enviar a notificação via WhatsApp usando a Z-API
-            enviar_notificacao_whatsapp(aula.professor, aula.contato, mensagem)
+            enviar_notificacao_whatsapp(aula.contato, mensagem)
 
             time.sleep(120)
 
