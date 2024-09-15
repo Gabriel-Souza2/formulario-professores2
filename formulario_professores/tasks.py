@@ -4,6 +4,8 @@ from formulario_professores.models import Aula
 import requests
 from celery import shared_task
 from django.conf import settings
+from datetime import datetime
+import time
 
 @shared_task
 def enviar_notificacao_whatsapp(professor_nome, contato, mensagem):
@@ -18,13 +20,13 @@ def enviar_notificacao_whatsapp(professor_nome, contato, mensagem):
     
     # Conteúdo da mensagem a ser enviada
     payload = {
-        "phone": '+5511945146976',
+        "phone": contato,
         "message": f"Olá, {professor_nome}! {mensagem}"
     }
 
     # Fazer a requisição POST para a API da Z-API
     try:
-        response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': 'F5c26271a53fc44ec8a6802a404bbe49dS'})
+        response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': settings.ZAPI_CLIENT_TOKEN})
         response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
         return response.json()  # Retorna a resposta da API se tudo ocorrer bem
     except requests.RequestException as e:
@@ -51,3 +53,30 @@ def verificar_aulas_e_notificar():
             
             # Enviar a mensagem via WhatsApp
             enviar_notificacao_whatsapp.delay(aula.professor, aula.contato, mensagem)
+
+            time.sleep(120)
+
+
+
+def notificar_no_dia_da_aula(aula_id):
+    """
+    Task para notificar o professor no próprio dia da aula.
+    """
+    try:
+        # Obter os detalhes da aula
+        aula = Aula.objects.get(id=aula_id)
+        
+        # Verificar se a data da aula é hoje
+        hoje = datetime.now().date()
+        if aula.data_aulas == hoje:
+            mensagem = aula.mensagem_notificacao or f"Sua aula de {aula.disciplina} está agendada para hoje."
+            
+            # Enviar a notificação via WhatsApp usando a Z-API
+            enviar_notificacao_whatsapp(aula.professor, aula.contato, mensagem)
+
+            time.sleep(120)
+
+    except Aula.DoesNotExist:
+        print("Aula não encontrada.")
+    except Exception as e:
+        print(f"Erro ao notificar no dia da aula: {e}")

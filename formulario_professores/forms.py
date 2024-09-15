@@ -17,7 +17,7 @@ class AulaForm(forms.ModelForm):
     def clean_contato(self):
         contato = self.cleaned_data.get('contato')
         # Exigir que o número de telefone tenha apenas dígitos e tenha 10-15 caracteres
-        if not re.match(r'^\d{10,15}$', contato):
+        if not re.match(r'^\(\d{2}\)\s\d{4,5}-\d{4}$', contato):
             raise forms.ValidationError('O número de telefone deve conter apenas dígitos e ter entre 10 e 15 caracteres.')
         return contato
     

@@ -18,6 +18,7 @@ class Aula(models.Model):
         # Verifica se o número já não tem o prefixo +55
         if not self.contato.startswith('+55'):
             # Adiciona o prefixo +55 ao número
+            self.contato = ''.join(filter(str.isdigit, self.contato))
             self.contato = '+55' + self.contato
         super(Aula, self).save(*args, **kwargs)
     

@@ -1,9 +1,10 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block titulo %}Aulas{% endblock %}
 {% block conteudo %}
     <nav class="bg-white border-b border-gray-300 p-4">
-        <div class="container mx-auto flex items-center">
+        <div class="container mx-auto flex justify-between items-center">
             <!-- Logo e Saudação à esquerda -->
             <div class="flex items-center space-x-5">
                 <a href="/" class="text-black text-lg font-bold">Minha Aplicação</a>
@@ -29,15 +30,15 @@
             </div>
         </div>
     </nav>
-    <div class="container mx-auto">
+    <div class="container py-2 mx-auto">
         <h1 class="text-3xl font-bold text-center mb-6">Aulas Cadastradas</h1>
 
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr class="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6 text-left">Disciplina</th>
-                        <th class="py-3 px-6 text-left">Professor</th>
+                        <th class="py-3 px-6 text-center">Disciplina</th>
+                        <th class="py-3 px-6 text-center">Professor</th>
                         <th class="py-3 px-6 text-center">Quantidade de Aulas</th>
                         <th class="py-3 px-6 text-center">Data das Aulas</th>
                         <th class="py-3 px-6 text-center">Contato</th>
@@ -51,8 +52,8 @@
                         <td class="py-3 px-6 text-left">{{ aula.professor }}</td>
                         <td class="py-3 px-6 text-center">{{ aula.quantidade_aulas }}</td>
                         <td class="py-3 px-6 text-center">{{ aula.data_aulas }}</td>
-                        <td class="py-3 px-6 text-center">{{ aula.contato }}</td>
-                        <td class="py-3 px-6 text-center">
+                        <td class="py-3 px-6 text-center contato">{{ aula.contato }}</td>
+                        <td class="py-3 px-6 text-center flex items-center justify-center">
                             <!-- Botão para editar -->
                             <a href="{% url 'editar_aula' aula.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Editar</a>
                             <!-- Botão para excluir -->
@@ -72,4 +73,6 @@
             <a href="{% url 'cadastrar_aula' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Cadastrar Nova Aula</a>
         </div>
     </div>
+    <script src="{% static 'js/script.js' %}"></script>
+
 {% endblock %}
