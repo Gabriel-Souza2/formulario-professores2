@@ -46,3 +46,15 @@ def excluir_aula(request, aula_id):
 @login_required
 def sucesso(request):
     return render(request, 'sucesso.html')
+
+
+from django.contrib.auth.views import LoginView
+from django.contrib import messages
+
+class CustomLoginView(LoginView):
+    template_name = 'auth/login.html'
+
+    def form_invalid(self, form):
+        # Adiciona uma mensagem de erro ao contexto se o login falhar
+        messages.error(self.request, 'Credenciais inválidas. Por favor, tente novamente.')
+        return super().form_invalid(form)
