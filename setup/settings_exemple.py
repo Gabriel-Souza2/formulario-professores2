@@ -143,13 +143,13 @@ CELERY_RESULT_BACKEND = 'redis://redis:6379/0'
 CELERY_BEAT_SCHEDULE = {
     'verificar-aulas-diariamente': {
         'task': 'formulario_professores.tasks.verificar_aulas_e_notificar',
-        'schedule': crontab(minute='*/3'),  # Executa todos os dias à meia-noite
+        'schedule': crontab(hour=8, minute=0),  # Executa todos os dias à oito horas da manhã
     },
 }
 
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
 #Z-API
-ZAPI_INSTANCE_ID = '3D54FB8C0592D02FF32D42690085FC51'
-ZAPI_TOKEN = 'FC61DB19DC7891BC1FF83BB4'
-ZAPI_CLIENT_TOKEN = 'F5c26271a53fc44ec8a6802a404bbe49dS'
+ZAPI_INSTANCE_ID = ''
+ZAPI_TOKEN = ''
+ZAPI_CLIENT_TOKEN = ''
