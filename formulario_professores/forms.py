@@ -1,6 +1,7 @@
 from django import forms
 from .models import Aula
 import re
+from datetime import date
 
 class AulaForm(forms.ModelForm):
     class Meta:
@@ -21,6 +22,12 @@ class AulaForm(forms.ModelForm):
             raise forms.ValidationError('O número de telefone deve ter entre 10 e 15 caracteres.')
         return contato
     
+    def clean_data_aula(self):
+        data_aula = self.cleaned_data['data_aula']
+        if data_aula < date.today():
+            raise forms.ValidationError("A data da aula não pode ser no passado.")
+        return data_aula
+
     def __init__(self, *args, **kwargs):
         super(AulaForm, self).__init__(*args, **kwargs)
         for field in self.fields:
