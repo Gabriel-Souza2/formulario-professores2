@@ -21,4 +21,4 @@ EXPOSE 8000
 
 
 # Comando para iniciar o servidor do Django
-CMD ["gunicorn", "--bind", "127.0.0.1:8000", "setup.wsgi:application"]
+CMD ["gunicorn", "--bind", "0.0.0.0:8000", "setup.wsgi:application"]
