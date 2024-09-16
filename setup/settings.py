@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-imd7n1@2kq3=5*&$@*a)coc-mr@%h-(*jr&a_-h9qp817a(d(c'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['formulario.gabrielsouzadev.com']
+ALLOWED_HOSTS = ['127.0.0.1', 'formulario.gabrielsouzadev.com', 'localhost']
 
 
 # Application definition
@@ -119,6 +119,11 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
 
 STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
+STATICFILES_DIRS = [
+    BASE_DIR / 'formulario_professores/static',  # Caminho para os arquivos estáticos do app
+]
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
