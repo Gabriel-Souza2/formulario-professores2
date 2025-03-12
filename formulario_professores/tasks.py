@@ -45,6 +45,8 @@ def enviar_notificacao_whatsapp(contato, mensagem):
     except requests.RequestException as e:
         print(f"Erro ao enviar a mensagem para o WhatsApp: {e}")
         return None
+    
+    
 
 @shared_task
 def verificar_disparos():
@@ -70,15 +72,20 @@ def verificar_disparos():
         print("🚨 Limite diário atingido! Nenhuma mensagem será enviada.")
         return
 
+
     for mensagem in mensagens:
         if mensagens_enviadas_hoje >= MAX_MENSAGENS_DIA:
             print("🚨 Limite atingido durante o envio! Parando envio.")
             break
 
+        delay = 0
+            
         for contato in mensagem.contato:
             print(f"📩 Enviando mensagem para {contato}: {mensagem.mensagem_notificacao}")
-            enviar_notificacao_whatsapp.delay(contato, mensagem.mensagem_notificacao)
-            time.sleep(mensagem.intervalo_disparo)
+            enviar_notificacao_whatsapp.apply_async(args=[contato, mensagem.mensagem_notificacao], countdown=delay)
+
+            delay = mensagem.intervalo_disparo
+
             print(f"✅ Mensagem enviada para {contato}")
             mensagens_enviadas_hoje += 1
 
