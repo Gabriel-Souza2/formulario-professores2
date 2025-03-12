@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-imd7n1@2kq3=5*&$@*a)coc-mr@%h-(*jr&a_-h9qp817a(d(c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'formulario.gabrielsouzadev.com', 'localhost', '15.229.6.119']
+ALLOWED_HOSTS = ['127.0.0.1', 'formulario.gabrielsouzadev.com', 'localhost', '15.229.6.119', 'testet3a.nexusautomate.com.br']
 
 
 # Application definition
