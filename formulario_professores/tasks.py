@@ -78,6 +78,7 @@ def verificar_disparos():
         for contato in mensagem.contato:
             print(f"📩 Enviando mensagem para {contato}: {mensagem.mensagem_notificacao}")
             enviar_notificacao_whatsapp.delay(contato, mensagem.mensagem_notificacao)
+            time.sleep(mensagem.intervalo_disparo)
             print(f"✅ Mensagem enviada para {contato}")
             mensagens_enviadas_hoje += 1
 
