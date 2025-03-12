@@ -31,38 +31,38 @@
         </div>
     </nav>
     <div class="container py-2 mx-auto">
-        <h1 class="text-3xl font-bold text-center mb-6">Aulas Cadastradas</h1>
+        <h1 class="text-3xl font-bold text-center mb-6">Mensagens Cadastradas</h1>
 
         <div class="overflow-x-auto">
             <table class="min-w-full bg-white border border-gray-200">
                 <thead>
                     <tr class="bg-gray-200 text-gray-700 uppercase text-sm leading-normal">
-                        <th class="py-3 px-6 text-center">Disciplina</th>
-                        <th class="py-3 px-6 text-center">Professor</th>
-                        <th class="py-3 px-6 text-center">Quantidade de Aulas</th>
-                        <th class="py-3 px-6 text-center">Data das Aulas</th>
-                        <th class="py-3 px-6 text-center">Contato</th>
+                        <th class="py-3 px-6 text-center">Dias de Disparo</th>
+                        <th class="py-3 px-6 text-center">Horário de Disparo</th>
+                        <th class="py-3 px-6 text-center">Contatos</th>
+                        <th class="py-3 px-6 text-center">Intervalo de Disparo</th>
+                        <th class="py-3 px-6 text-center">Mensagem</th>
                         <th class="py-3 px-6 text-center">Ações</th>
                     </tr>
                 </thead>
                 <tbody class="text-gray-600 text-sm">
-                    {% for aula in aulas %}
+                    {% for mensagem in mensagens %}
                     <tr class="border-b border-gray-200 hover:bg-gray-100">
-                        <td class="py-3 px-6 text-center whitespace-nowrap">{{ aula.disciplina }}</td>
-                        <td class="py-3 px-6 text-center">{{ aula.professor }}</td>
-                        <td class="py-3 px-6 text-center">{{ aula.quantidade_aulas }}</td>
-                        <td class="py-3 px-6 text-center">{{ aula.data_aulas }}</td>
-                        <td class="py-3 px-6 text-center contato">{{ aula.contato }}</td>
+                        <td class="py-3 px-6 text-center">{{ mensagem.dias_disparo }}</td>
+                        <td class="py-3 px-6 text-center">{{ mensagem.horario_disparo }}</td>
+                        <td class="py-3 px-6 text-center">{{ mensagem.contato }}</td>
+                        <td class="py-3 px-6 text-center">{{ mensagem.intervalo_disparo }}</td>
+                        <td class="py-3 px-6 text-center">{{ mensagem.mensagem_notificacao }}</td>
                         <td class="py-3 px-6 text-center flex items-center justify-center">
                             <!-- Botão para editar -->
-                            <a href="{% url 'editar_aula' aula.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Editar</a>
+                            <a href="{% url 'editar_aula' mensagem.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Editar</a>
                             <!-- Botão para excluir -->
-                            <a href="{% url 'excluir_aula' aula.id %}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Excluir</a>
+                            <a href="{% url 'excluir_aula' mensagem.id %}" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600">Excluir</a>
                         </td>
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="6" class="py-3 px-6 text-center text-gray-500">Nenhuma aula cadastrada.</td>
+                        <td colspan="6" class="py-3 px-6 text-center text-gray-500">Nenhuma mensagem cadastrada.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
@@ -70,47 +70,10 @@
         </div>
 
         <div class="text-center mt-6">
-            <a href="{% url 'cadastrar_aula' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Cadastrar Nova Aula</a>
+            <a href="{% url 'cadastrar_aula' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Cadastrar Nova mensagem</a>
         </div>
     </div>
     <script>
-        function formatarTelefone(numero) {
-            // Remove o código de país +55, se existir
-            if (numero.startsWith('+55')) {
-                numero = numero.slice(3);  // Remove os primeiros 3 caracteres, ou seja, o +55
-            }
-
-            // Remove todos os caracteres que não são dígitos
-            numero = numero.replace(/\D/g, '');
-
-            // Verifica se o número tem 10 ou 11 dígitos (fixo ou celular)
-            if (numero.length === 10) {
-                // Formato para números fixos (XXXX-XXXX)
-                numero = numero.replace(/^(\d{2})(\d{4})(\d{4})$/, "($1) $2-$3");
-            } else if (numero.length === 11) {
-                // Formato para números de celular (XXXXX-XXXX)
-                numero = numero.replace(/^(\d{2})(\d{5})(\d{4})$/, "($1) $2-$3");
-            } else {
-                // Caso o número não tenha 10 ou 11 dígitos, retorne como está
-                return numero;
-            }
-
-            return numero;
-        }
-
-
-
-        document.addEventListener('DOMContentLoaded', function() {
-            // Seleciona todas as células da tabela com a classe 'telefone'
-            let telefones = document.querySelectorAll('.contato');
-            
-            // Itera sobre cada célula de telefone e formata o número
-            telefones.forEach(function(celula) {
-                let numero = celula.textContent;  // Pega o conteúdo da célula
-                let numeroFormatado = formatarTelefone(numero);  // Formata o telefone
-                celula.textContent = numeroFormatado;  // Atualiza o valor da célula com o telefone formatado
-            });
-        })
     </script>
 
     </script>

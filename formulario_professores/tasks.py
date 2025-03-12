@@ -1,11 +1,24 @@
 from datetime import timedelta
 from django.utils import timezone
-from formulario_professores.models import Aula
+from formulario_professores.models import Mensagem
 import requests
 from celery import shared_task
 from django.conf import settings
 from datetime import datetime
 import time
+
+from django.utils.timezone import localtime
+from .models import Mensagem
+from datetime import datetime, timedelta
+from django.core.cache import cache  
+
+MAX_MENSAGENS_DIA = 65
+
+def obter_tempo_ate_meia_noite():
+    """Calcula quantos segundos faltam para meia-noite"""
+    agora = datetime.now()
+    meia_noite = datetime.combine(agora.date() + timedelta(days=1), datetime.min.time())  # Próxima meia-noite
+    return int((meia_noite - agora).total_seconds())  # Segundos até meia-noite
 
 @shared_task
 def enviar_notificacao_whatsapp(contato, mensagem):
@@ -33,50 +46,40 @@ def enviar_notificacao_whatsapp(contato, mensagem):
         print(f"Erro ao enviar a mensagem para o WhatsApp: {e}")
         return None
 
-
 @shared_task
-def verificar_aulas_e_notificar():
-    """
-    Verifica as aulas que estão chegando e envia notificações para os professores.
-    """
-
-    hoje = timezone.now().date()
+def verificar_disparos():
+    agora = localtime().time()  # Hora atual do servidor
+    dia_atual = str(datetime.today().weekday())  # Obtém o número do dia (0=Segunda, 6=Domingo)
     
-    # Obtenha todas as aulas que ainda não ocorreram
-    aulas = Aula.objects.filter(data_aulas__gte=hoje)
-    
-    for aula in aulas:
-        data_aviso = aula.data_aulas - timedelta(days=aula.dias_antes)
-        if data_aviso <= hoje:
-            # Use o campo `mensagem_notificacao` ou uma mensagem padrão
-            mensagem = aula.mensagem_notificacao or f"Sua aula de {aula.disciplina} está agendada para {aula.data_aulas}."
-            
-            # Enviar a mensagem via WhatsApp
-            enviar_notificacao_whatsapp.delay(aula.contato, mensagem)
+    print(f"⏳ Verificando disparos - Hora Atual: {agora}, Dia Atual: {dia_atual}")
 
-            time.sleep(120)
+    mensagens = Mensagem.objects.filter(
+        horario_disparo__hour=agora.hour, 
+        horario_disparo__minute=agora.minute,  # Agora considerando minuto
+        dias_disparo__contains=dia_atual
+    )
+
+    # 🔹 Obtém quantas mensagens já foram enviadas hoje
+    chave_contador = f"mensagens_enviadas_{datetime.today().date()}"
+    mensagens_enviadas_hoje = cache.get(chave_contador, 0)
+
+    print(f"📊 Mensagens enviadas hoje: {mensagens_enviadas_hoje}/{MAX_MENSAGENS_DIA}")
 
 
+    if mensagens_enviadas_hoje >= MAX_MENSAGENS_DIA:
+        print("🚨 Limite diário atingido! Nenhuma mensagem será enviada.")
+        return
 
-def notificar_no_dia_da_aula(aula_id):
-    """
-    Task para notificar o professor no próprio dia da aula.
-    """
-    try:
-        # Obter os detalhes da aula
-        aula = Aula.objects.get(id=aula_id)
-        
-        # Verificar se a data da aula é hoje
-        hoje = datetime.now().date()
-        if aula.data_aulas == hoje:
-            mensagem = aula.mensagem_notificacao or f"Sua aula de {aula.disciplina} está agendada para hoje."
-            
-            # Enviar a notificação via WhatsApp usando a Z-API
-            enviar_notificacao_whatsapp(aula.contato, mensagem)
+    for mensagem in mensagens:
+        if mensagens_enviadas_hoje >= MAX_MENSAGENS_DIA:
+            print("🚨 Limite atingido durante o envio! Parando envio.")
+            break
 
-            time.sleep(120)
+        for contato in mensagem.contato:
+            print(f"📩 Enviando mensagem para {contato}: {mensagem.mensagem_notificacao}")
+            enviar_notificacao_whatsapp.delay(contato, mensagem.mensagem_notificacao)
+            print(f"✅ Mensagem enviada para {contato}")
+            mensagens_enviadas_hoje += 1
 
-    except Aula.DoesNotExist:
-        print("Aula não encontrada.")
-    except Exception as e:
-        print(f"Erro ao notificar no dia da aula: {e}")
+        timeout = obter_tempo_ate_meia_noite()
+        cache.set(chave_contador, mensagens_enviadas_hoje, timeout=timeout)

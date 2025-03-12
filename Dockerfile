@@ -10,6 +10,8 @@ COPY requirements.txt .
 # Instalar as dependências do projeto
 RUN pip install --upgrade pip
 
+RUN apt-get update && apt-get install -y libpq-dev gcc
+
 RUN pip install --no-cache-dir -r requirements.txt
 
 
@@ -18,7 +20,3 @@ COPY . .
 
 # Expor a porta em que o Django vai rodar
 EXPOSE 8000
-
-
-# Comando para iniciar o servidor do Django
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "setup.wsgi:application"]
