@@ -27,7 +27,7 @@
             <!-- Campo Contato -->
             <div class="mb-4">
                 <label for="contatos" class="block text-gray-700 font-semibold mb-2">Contatos</label>
-                {{ form.contato }}
+                <input type="text" name="contato" id="contato" value="{% if form.contato.value %}{{ form.contato.value|join:', ' }}{% endif %}" class="w-full border border-gray-300 rounded-md p-2">
                 {% if form.contato.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.contato.errors.0 }}</p>
                 {% endif %}

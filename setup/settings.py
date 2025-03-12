@@ -27,7 +27,7 @@ SECRET_KEY = 'django-insecure-imd7n1@2kq3=5*&$@*a)coc-mr@%h-(*jr&a_-h9qp817a(d(c
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1', 'formulario.gabrielsouzadev.com', 'localhost']
+ALLOWED_HOSTS = ['127.0.0.1', 'formulario.gabrielsouzadev.com', 'localhost', '15.229.6.119']
 
 
 # Application definition
@@ -153,6 +153,6 @@ CELERY_BEAT_SCHEDULE = {
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers.DatabaseScheduler'
 
 #Z-API
-ZAPI_INSTANCE_ID = ''
-ZAPI_TOKEN = ''
-ZAPI_CLIENT_TOKEN = ''
+ZAPI_INSTANCE_ID = '3DE195BC07E241D736992A8D0B892839'
+ZAPI_TOKEN = '82861221A5071FE5B9F1F222'
+ZAPI_CLIENT_TOKEN = 'Fcf0d9d77aa9f4050b3988369b52f6dfbS'
