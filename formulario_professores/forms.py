@@ -2,6 +2,10 @@ from django import forms
 from .models import Mensagem
 import re
 
+from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.models import User
+
+
 class MensagemForm(forms.ModelForm):
     contato = forms.CharField(
         required=False,
@@ -89,3 +93,14 @@ class MensagemForm(forms.ModelForm):
 
         if self.instance and self.instance.pk and isinstance(self.instance.contato, list):
             self.fields['contato'].initial = ", ".join(self.instance.contato)  # Exibe como string no formulário
+
+
+class CustomUserCreationForm(UserCreationForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email')  # Campos que você quer exibir no form
+
+class CustomUserChangeForm(UserChangeForm):
+    class Meta:
+        model = User
+        fields = ('username', 'email')  # Campos que você quer exibir no form

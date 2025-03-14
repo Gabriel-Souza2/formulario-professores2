@@ -8,7 +8,7 @@ from datetime import datetime
 import time
 
 from django.utils.timezone import localtime
-from .models import Mensagem, Instancia, User
+from .models import Mensagem, Instancia, User, Enviadas, UserMessageLimit
 from datetime import datetime, timedelta
 from django.core.cache import cache  
 
@@ -64,35 +64,41 @@ def verificar_disparos():
         dias_disparo__contains=dia_atual
     )
 
-    # 🔹 Obtém quantas mensagens já foram enviadas hoje
-    chave_contador = f"mensagens_enviadas_{datetime.today().date()}"
-    mensagens_enviadas_hoje = cache.get(chave_contador, 0)
-
-    print(f"📊 Mensagens enviadas hoje: {mensagens_enviadas_hoje}/{MAX_MENSAGENS_DIA}")
-
-
-    if mensagens_enviadas_hoje >= MAX_MENSAGENS_DIA:
-        print("🚨 Limite diário atingido! Nenhuma mensagem será enviada.")
-        return
-
-
+    # 🔹 Verificar quantas mensagens um usuário já enviou hoje
     for mensagem in mensagens:
-        if mensagens_enviadas_hoje >= MAX_MENSAGENS_DIA:
-            print("🚨 Limite atingido durante o envio! Parando envio.")
-            break
+        usuario = mensagem.usuario
+        hoje = timezone.now().date()  # Obtém a data atual
+
+        # Obtém o limite diário do usuário (ou usa um padrão se não existir)
+        limite_mensagens = UserMessageLimit.objects.filter(user=usuario).first()
+        if not limite_mensagens:
+            limite_diario = 65  # Defina um valor padrão se o usuário não tiver um limite definido
+        else:
+            limite_diario = limite_mensagens.limite_diario
+
+        # Contabiliza as mensagens enviadas hoje
+        mensagens_enviadas_hoje = Enviadas.objects.filter(
+            user=usuario, 
+            data_envio__date=hoje
+        ).count()
+
+        print(f"📊 Mensagens enviadas hoje pelo usuário {usuario.username}: {mensagens_enviadas_hoje}/{limite_diario}")
+
+        if mensagens_enviadas_hoje >= limite_diario:
+            print(f"🚨 Limite diário de mensagens atingido para {usuario.username}! Nenhuma mensagem será enviada.")
+            continue  # Pula para o próximo usuário se o limite for atingido
 
         delay = 0
-
-        usuario_id = mensagem.usuario.id
-            
         for contato in mensagem.contato:
             print(f"📩 Enviando mensagem para {contato}: {mensagem.mensagem_notificacao}")
-            enviar_notificacao_whatsapp.apply_async(args=[contato, mensagem.mensagem_notificacao, usuario_id], countdown=delay)
+            
+            # Envia a mensagem via task do Celery
+            enviar_notificacao_whatsapp.apply_async(args=[contato, mensagem.mensagem_notificacao, usuario.id], countdown=delay)
 
             delay = mensagem.intervalo_disparo
 
-            print(f"✅ Mensagem enviada para {contato}")
-            mensagens_enviadas_hoje += 1
+            # Registra a mensagem no banco de dados
+            Enviadas.objects.create(user=usuario, texto=mensagem.mensagem_notificacao)
 
-        timeout = obter_tempo_ate_meia_noite()
-        cache.set(chave_contador, mensagens_enviadas_hoje, timeout=timeout)
+            print(f"✅ Mensagem enviada para {contato}")
+            

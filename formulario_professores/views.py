@@ -1,10 +1,11 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import MensagemForm
-from .models import Mensagem, Instancia
+from .models import Mensagem, Instancia, Enviadas, UserMessageLimit
 
 from .repositories import ZapiRepository
 import uuid
+from django.utils.timezone import now
 
 import json
 
@@ -14,53 +15,59 @@ def listar_aulas(request):
     instancia = Instancia.objects.filter(usuario=request.user).first()
 
     if not instancia:
-        id_aleatorio = str(uuid.uuid4())[:5]  # Opcional: pegar apenas os primeiros 5 caracteres
-        user_name = request.user.username  # Recupera o nome do usuário
-        name = f't3a-cannon-{user_name}-{id_aleatorio}'  # Gera o nome único
+        id_aleatorio = str(uuid.uuid4())[:5]  
+        user_name = request.user.username  
+        name = f't3a-cannon-{user_name}-{id_aleatorio}'  
 
-        result = ZapiRepository.criar_instancia(name)  # Cria nova instância
+        result = ZapiRepository.criar_instancia(name)  
 
         status = False
 
-        if result and result.get("id") and result.get("token")  :
-                id_instancia = result.get('id')
-                token_instancia = result.get('token')
+        if result and result.get("id") and result.get("token"):
+            id_instancia = result.get('id')
+            token_instancia = result.get('token')
 
-                # Salvando no banco de dados
-                instancia = Instancia(
-                    usuario=request.user,  # Supondo que o usuário logado esteja fazendo a requisição
-                    id_instancia=id_instancia,
-                    token_instancia=token_instancia
-                )
-                instancia.save()
+            instancia = Instancia(
+                usuario=request.user,
+                id_instancia=id_instancia,
+                token_instancia=token_instancia
+            )
+            instancia.save()
     
     else:
         result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
-
         status = result.get('connected', False)
 
     mensagens = Mensagem.objects.filter(usuario=request.user)
     mensagens_formatadas = []
+    
     for mensagem in mensagens:
-        contato = mensagem.contato
-
-        print(contato)
-        semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo']
-        dias_disparos = []
-        for dia in mensagem.dias_disparo:
-            dias_disparos.append(semana[int(dia)])
-
-
+        semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
+        dias_disparos = [semana[int(dia)] for dia in mensagem.dias_disparo]
 
         mensagens_formatadas.append({
             'dias_disparo': ", ".join(dias_disparos),
             'horario_disparo': mensagem.horario_disparo,
-            'contato': ", ".join(contato),  # Se você precisar exibir como uma string
+            'contato': ", ".join(mensagem.contato),
             'intervalo_disparo': mensagem.intervalo_disparo,
             'mensagem_notificacao': mensagem.mensagem_notificacao,
             'id': mensagem.id
         })
-    return render(request, 'listar.html', {'mensagens': mensagens_formatadas, 'status': status})
+
+    # 📊 **Calculando as mensagens enviadas hoje pelo usuário**
+    hoje = now().date()
+    mensagens_enviadas = Enviadas.objects.filter(user=request.user, data_envio__date=hoje).count()
+
+    # 🔹 **Buscando o limite de mensagens do usuário**
+    limite = UserMessageLimit.objects.filter(user=request.user).first()
+    limite_diario = limite.limite_diario if limite else 65  # Se não houver registro, assume 10 como padrão
+
+    return render(request, 'listar.html', {
+        'mensagens': mensagens_formatadas,
+        'status': status,
+        'mensagens_enviadas': mensagens_enviadas,
+        'limite_diario': limite_diario
+    })
 
 @login_required
 def cadastrar_aula(request):

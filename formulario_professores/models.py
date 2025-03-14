@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
 
+
 class Mensagem(models.Model):
     usuario = models.ForeignKey(User, on_delete=models.CASCADE)
     dias_disparo = models.JSONField(blank=False, help_text="Dias da semana para disparo (0=Segunda, 1=Terça, ..., 6=Domingo)")
@@ -32,3 +33,22 @@ class Instancia(models.Model):
 
     def __str__(self):
         return f"Instância {self.id_instancia} de {self.usuario.username}"
+    
+class Enviadas(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # Usuário que enviou a mensagem
+    texto = models.TextField()  # Conteúdo da mensagem
+    data_envio = models.DateTimeField(auto_now_add=True)  # Data e hora do envio
+
+    def __str__(self):
+        return f"Mensagem enviada por {self.user.username} em {self.data_envio}"
+    
+class UserMessageLimit(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    limite_diario = models.IntegerField(default=65)  # Define um limite padrão de 10 mensagens por dia
+
+    def __str__(self):
+        return f"{self.user.username} - Limite: {self.limite_diario} mensagens/dia"
+    
+    class Meta:
+        verbose_name = "Limite de Mensagens do Usuário"
+        verbose_name_plural = "Limites de Mensagens dos Usuários"

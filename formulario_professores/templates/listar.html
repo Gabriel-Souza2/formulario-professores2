@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static %}
 
-{% block titulo %}Aulas{% endblock %}
+{% block titulo %}Dashboard{% endblock %}
 {% block conteudo %}
     <nav class="bg-white border-b border-gray-300 p-4">
         <div class="container mx-auto flex justify-between items-center">
@@ -13,17 +13,15 @@
                 {% endif %}
 
                 {% if not status %}
-
                     <a href="{% url 'instancia' %}" class="text-red-500 hover:text-red-700">
                         Conectar Whatsapp
                     </a>
                 {% else %}
-                    <a href="{% url 'desconectar_instancia' %}" class="text-red-500 hover:text-red-700">
+                    <a href="{% url 'desconectar_instancia' %}" class="text-green-500 hover:text-red-700">
                         Desconectar Instância
                     </a>
                 {% endif %}
             </div>
-
             
             <!-- Botão de Logout à direita -->
             <div class="ml-2">
@@ -45,12 +43,19 @@
 
     <div class="container py-2 mx-auto">
         {% if not status %}
-
             <div class="flex justify-center mb-4">
                 <span class="bg-red-500 text-white px-4 py-2 rounded-md inline-block">Você não está conectado, se conecte para enviar as mensagens!</span>
             </div>
-            
         {% endif %}
+
+        <!-- Exibindo quantidade de mensagens enviadas hoje e limite -->
+        <div class="text-center mb-6">
+            <p>📊 Mensagens enviadas hoje: <strong>{{ mensagens_enviadas }}/{{ limite_diario }}</strong></p>
+            {% if mensagens_enviadas >= limite_diario %}
+                <p class="text-red-500">🚨 Você atingiu o limite diário de mensagens!</p>
+            {% endif %}
+        </div>
+
         <h1 class="text-3xl font-bold text-center mb-6">Mensagens Cadastradas</h1>
 
         <div class="overflow-x-auto">
@@ -93,10 +98,5 @@
             <a href="{% url 'cadastrar_aula' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">Cadastrar Nova mensagem</a>
         </div>
     </div>
-    <script>
-    </script>
-
-    </script>
     <script src="{% static 'js/script.js' %}"></script>
-
 {% endblock %}
