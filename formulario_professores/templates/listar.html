@@ -11,8 +11,20 @@
                 {% if user.is_authenticated %}
                     <span class="text-gray-700">Bem-vindo, {{ user.username }}!</span>
                 {% endif %}
+
+                {% if not status %}
+
+                    <a href="{% url 'instancia' %}" class="text-red-500 hover:text-red-700">
+                        Conectar Whatsapp
+                    </a>
+                {% else %}
+                    <a href="{% url 'desconectar_instancia' %}" class="text-red-500 hover:text-red-700">
+                        Desconectar Instância
+                    </a>
+                {% endif %}
             </div>
 
+            
             <!-- Botão de Logout à direita -->
             <div class="ml-2">
                 {% if user.is_authenticated %}
@@ -30,7 +42,15 @@
             </div>
         </div>
     </nav>
+
     <div class="container py-2 mx-auto">
+        {% if not status %}
+
+            <div class="flex justify-center mb-4">
+                <span class="bg-red-500 text-white px-4 py-2 rounded-md inline-block">Você não está conectado, se conecte para enviar as mensagens!</span>
+            </div>
+            
+        {% endif %}
         <h1 class="text-3xl font-bold text-center mb-6">Mensagens Cadastradas</h1>
 
         <div class="overflow-x-auto">

@@ -8,7 +8,7 @@ from datetime import datetime
 import time
 
 from django.utils.timezone import localtime
-from .models import Mensagem
+from .models import Mensagem, Instancia, User
 from datetime import datetime, timedelta
 from django.core.cache import cache  
 
@@ -21,15 +21,18 @@ def obter_tempo_ate_meia_noite():
     return int((meia_noite - agora).total_seconds())  # Segundos até meia-noite
 
 @shared_task
-def enviar_notificacao_whatsapp(contato, mensagem):
+def enviar_notificacao_whatsapp(contato, mensagem, usuario_id):
     """
     Envia uma mensagem via WhatsApp usando a Z-API.
     :param professor_nome: Nome do professor
     :param contato: Número de WhatsApp do professor (deve incluir o código do país, ex: +5511999999999)
     :param mensagem: Mensagem a ser enviada
     """
+
+    usuario = User.objects.get(id=usuario_id)
+    instancia = Instancia.objects.get(usuario=usuario)
     # Configurar os detalhes da Z-API
-    zapi_url = f"https://api.z-api.io/instances/{settings.ZAPI_INSTANCE_ID}/token/{settings.ZAPI_TOKEN}/send-text"
+    zapi_url = f"https://api.z-api.io/instances/{instancia.id_instancia}/token/{instancia.token_instancia}/send-text"
     
     # Conteúdo da mensagem a ser enviada
     payload = {
@@ -79,10 +82,12 @@ def verificar_disparos():
             break
 
         delay = 0
+
+        usuario_id = mensagem.usuario.id
             
         for contato in mensagem.contato:
             print(f"📩 Enviando mensagem para {contato}: {mensagem.mensagem_notificacao}")
-            enviar_notificacao_whatsapp.apply_async(args=[contato, mensagem.mensagem_notificacao], countdown=delay)
+            enviar_notificacao_whatsapp.apply_async(args=[contato, mensagem.mensagem_notificacao, usuario_id], countdown=delay)
 
             delay = mensagem.intervalo_disparo
 

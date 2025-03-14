@@ -24,3 +24,11 @@ class Mensagem(models.Model):
             'mensagem_notificacao': self.mensagem_notificacao,
             'id': self.id
         }
+
+class Instancia(models.Model):
+    usuario = models.ForeignKey(User, on_delete=models.CASCADE)
+    id_instancia = models.CharField(max_length=255, unique=True)
+    token_instancia = models.TextField()
+
+    def __str__(self):
+        return f"Instância {self.id_instancia} de {self.usuario.username}"

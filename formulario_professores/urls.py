@@ -10,6 +10,10 @@ from . import views
 urlpatterns = [
     path('', RedirectView.as_view(url="mensagens/")),
 
+    path('instancia/', views.instancia, name='instancia'),
+    path('criar-instancia/', views.criar_instancia, name='criar_instancia'),
+    path('desconectar-instancia/', views.desconectar_instancia, name='desconectar_instancia'),
+
     path('cadastrar/', views.cadastrar_aula, name='cadastrar_aula'),
     path('sucesso/', views.sucesso, name='sucesso'),  # Uma página simples de sucesso
     path('mensagens/', views.listar_aulas, name='listar_aulas'),
@@ -18,4 +22,5 @@ urlpatterns = [
 
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+
 ]

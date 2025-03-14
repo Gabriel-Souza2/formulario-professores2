@@ -1,13 +1,44 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .forms import MensagemForm
-from .models import Mensagem
+from .models import Mensagem, Instancia
+
+from .repositories import ZapiRepository
+import uuid
 
 import json
 
 
 @login_required
 def listar_aulas(request):
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+
+    if not instancia:
+        id_aleatorio = str(uuid.uuid4())[:5]  # Opcional: pegar apenas os primeiros 5 caracteres
+        user_name = request.user.username  # Recupera o nome do usuário
+        name = f't3a-cannon-{user_name}-{id_aleatorio}'  # Gera o nome único
+
+        result = ZapiRepository.criar_instancia(name)  # Cria nova instância
+
+        status = False
+
+        if result and result.get("id") and result.get("token")  :
+                id_instancia = result.get('id')
+                token_instancia = result.get('token')
+
+                # Salvando no banco de dados
+                instancia = Instancia(
+                    usuario=request.user,  # Supondo que o usuário logado esteja fazendo a requisição
+                    id_instancia=id_instancia,
+                    token_instancia=token_instancia
+                )
+                instancia.save()
+    
+    else:
+        result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+
+        status = result.get('connected', False)
+
     mensagens = Mensagem.objects.filter(usuario=request.user)
     mensagens_formatadas = []
     for mensagem in mensagens:
@@ -29,7 +60,7 @@ def listar_aulas(request):
             'mensagem_notificacao': mensagem.mensagem_notificacao,
             'id': mensagem.id
         })
-    return render(request, 'listar.html', {'mensagens': mensagens_formatadas})
+    return render(request, 'listar.html', {'mensagens': mensagens_formatadas, 'status': status})
 
 @login_required
 def cadastrar_aula(request):
@@ -83,3 +114,114 @@ class CustomLoginView(LoginView):
         # Adiciona uma mensagem de erro ao contexto se o login falhar
         messages.error(self.request, 'Credenciais inválidas. Por favor, tente novamente.')
         return super().form_invalid(form)
+    
+def instancia(request):
+    if not request.user.is_authenticated:
+        return render(request, 'instancia.html', {'error': 'Usuário não autenticado'})
+
+    # Buscar a instância do usuário autenticado
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+
+    if instancia:
+        # Buscar o QR code associado à instância
+        qr_result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+
+        if qr_result.get("value"):
+            qr_code = qr_result.get("value")
+        else: 
+            qr_code = None
+        status = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+
+
+        contexto = {
+            'id_instancia': instancia.id_instancia,
+            'token_instancia': instancia.token_instancia,
+            'qr_code_img_tag': qr_code,
+            'status': status
+        }
+    else:
+        contexto = {}
+
+    return render(request, 'instancia.html', contexto)
+
+def criar_instancia(request):
+    if request.method == 'POST':
+        nome = request.POST.get('nome')
+
+        if nome:
+            result = ZapiRepository.criar_instancia(nome)
+
+
+            if result and result.get("id") and result.get("token")  :
+                mensagem = "Instância criada com sucesso!"
+                sucesso = True
+
+                id_instancia = result.get('id')
+                token_instancia = result.get('token')
+
+                # Salvando no banco de dados
+                instancia = Instancia(
+                    usuario=request.user,  # Supondo que o usuário logado esteja fazendo a requisição
+                    id_instancia=id_instancia,
+                    token_instancia=token_instancia
+                )
+                instancia.save()
+
+                # Obtendo o QR code para a instância
+                instancia = Instancia.objects.get(id_instancia=result.get("id"))
+                qr_result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+                
+                if qr_result.get("status") == "success":
+                    qr_code_base64 = qr_result.get("image_base64")  # Recebe o QR code em base64
+                    qr_code_img_tag = f"data:image/png;base64,{qr_code_base64}"  # Formata como string base64
+                else:
+                    qr_code_img_tag = None  # Caso o QR code não tenha sido encontrado
+                    mensagem_qr = qr_result.get("message", "Erro ao obter QR Code")
+            else:
+                mensagem = result.get('message', 'Erro desconhecido.')
+                sucesso = False
+                qr_code_img_tag = None  # Caso haja erro na criação da instância
+
+        else:
+            mensagem = "Nome não fornecido."
+            sucesso = False
+            qr_code_img_tag = None  # Caso o nome não tenha sido fornecido
+
+        # Retornando para o template com a mensagem e QR code base64
+        return render(request, 'instancia.html', {
+            'sucesso': sucesso, 
+            'mensagem': mensagem,
+            'qr_code_img_tag': qr_code_img_tag
+        })
+
+    return render(request, 'instancia.html')
+
+def desconectar_instancia(request):
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.desconectar(instancia.id_instancia, instancia.token_instancia)
+
+    if result.get("value") == True:
+        status = False
+        mensagens = Mensagem.objects.filter(usuario=request.user)
+        mensagens_formatadas = []
+        for mensagem in mensagens:
+            contato = mensagem.contato
+
+            print(contato)
+            semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sabado', 'Domingo']
+            dias_disparos = []
+            for dia in mensagem.dias_disparo:
+                dias_disparos.append(semana[int(dia)])
+
+
+
+            mensagens_formatadas.append({
+                'dias_disparo': ", ".join(dias_disparos),
+                'horario_disparo': mensagem.horario_disparo,
+                'contato': ", ".join(contato),  # Se você precisar exibir como uma string
+                'intervalo_disparo': mensagem.intervalo_disparo,
+                'mensagem_notificacao': mensagem.mensagem_notificacao,
+                'id': mensagem.id
+            })
+        return render(request, 'listar.html', {'mensagens': mensagens_formatadas, 'status': status})
+
