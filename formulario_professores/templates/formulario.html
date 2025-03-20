@@ -65,10 +65,29 @@
                 {% if form.intervalo_disparo.errors %}
                     <p class="text-red-500 text-sm mt-1">{{ form.intervalo_disparo.errors.0 }}</p>
                 {% endif %}
+            </div>  
+
+            <div class="mb-4">
+                <label for="{{ form.modo_envio.id_for_label }}" class="block text-sm font-medium">{{ form.modo_envio.label }}</label>
+                {{ form.modo_envio }}
+            </div>
+            <div class="mb-4" id="campo_midia">
+                <label class="block text-gray-700 font-semibold mb-2">Midias:</label>
+                <select name="midia" class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="">Selecione...</option>
+                    {% for midia in midias %}
+                        <option value="{{ midia.id }}" {% if midia_select and midia_select.id == midia.id %} selected {% endif %}>{{ midia.nome }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="mb-4" id="campo_tipo_envio">
+                <label for="{{ form.tipo_envio.id_for_label }}" class="block text-sm font-medium">{{ form.tipo_envio.label }}</label>
+                {{ form.tipo_envio }}
             </div>
 
             <!-- Campo Mensagem de Notificação -->
-            <div class="mb-4">
+            <div class="mb-4" id="campo_mensagem">
                 <label for="mensagem_notificacao" class="block text-gray-700 font-semibold mb-2">Mensagem da Notificação</label>
                 {{ form.mensagem_notificacao }}
                 {% if form.mensagem_notificacao.errors %}
@@ -87,5 +106,37 @@
 
     <!-- Máscara de telefone -->
     <script src="https://unpkg.com/imask"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const modoEnvio = document.getElementsByName("modo_envio")[0];
+            const campoMidia = document.getElementById("campo_midia");
+            const campoMensagem = document.getElementById("campo_mensagem");
+            const campoTipoEnvio = document.getElementById("campo_tipo_envio");
+        
+            function atualizarCampos() {
+                const valorSelecionado = modoEnvio.value;
+        
+                if (valorSelecionado === "texto") {
+                    campoMensagem.classList.remove("hidden"); // Exibe o campo de mensagem
+                    campoMidia.classList.add("hidden"); // Esconde a mídia
+                    campoTipoEnvio.classList.add("hidden"); // Esconde o tipo de envio
+                } else if (valorSelecionado === "midia") {
+                    campoMensagem.classList.add("hidden"); // Esconde o campo de mensagem
+                    campoMidia.classList.remove("hidden"); // Exibe a mídia
+                    campoTipoEnvio.classList.add("hidden"); // Esconde o tipo de envio
+                } else if (valorSelecionado === "ambos") {
+                    campoMensagem.classList.remove("hidden"); // Exibe mensagem
+                    campoMidia.classList.remove("hidden"); // Exibe mídia
+                    campoTipoEnvio.classList.remove("hidden"); // Exibe a escolha de ordem
+                }
+            }
+        
+            // Atualiza os campos ao mudar o modo de envio
+            modoEnvio.addEventListener("change", atualizarCampos);
+        
+            // Atualiza a exibição ao carregar a página
+            atualizarCampos();
+        });
+    </script>
 </div>
 {% endblock %}

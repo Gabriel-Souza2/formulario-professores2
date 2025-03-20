@@ -3,43 +3,6 @@
 
 {% block titulo %}Dashboard{% endblock %}
 {% block conteudo %}
-    <nav class="bg-white border-b border-gray-300 p-4">
-        <div class="container mx-auto flex justify-between items-center">
-            <!-- Logo e Saudação à esquerda -->
-            <div class="flex items-center space-x-5">
-                <a href="/" class="text-black text-lg font-bold">T3a Cannon</a>
-                {% if user.is_authenticated %}
-                    <span class="text-gray-700">Bem-vindo, {{ user.username }}!</span>
-                {% endif %}
-
-                {% if not status %}
-                    <a href="{% url 'instancia' %}" class="text-red-500 hover:text-red-700">
-                        Conectar Whatsapp
-                    </a>
-                {% else %}
-                    <a href="{% url 'desconectar_instancia' %}" class="text-green-500 hover:text-red-700">
-                        Desconectar Instância
-                    </a>
-                {% endif %}
-            </div>
-            
-            <!-- Botão de Logout à direita -->
-            <div class="ml-2">
-                {% if user.is_authenticated %}
-                    <form method="POST" action="{% url 'logout' %}">
-                        {% csrf_token %}
-                        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
-                            Logout
-                        </button>
-                    </form>
-                {% else %}
-                    <a href="{% url 'login' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
-                        Login
-                    </a>
-                {% endif %}
-            </div>
-        </div>
-    </nav>
 
     <div class="container py-2 mx-auto">
         {% if not status %}
@@ -67,6 +30,7 @@
                         <th class="py-3 px-6 text-center">Contatos</th>
                         <th class="py-3 px-6 text-center">Intervalo de Disparo</th>
                         <th class="py-3 px-6 text-center">Mensagem</th>
+                        <th class="py-3 px-6 text-center">Mídia</th>
                         <th class="py-3 px-6 text-center">Ações</th>
                     </tr>
                 </thead>
@@ -78,6 +42,13 @@
                         <td class="py-3 px-6 text-center">{{ mensagem.contato }}</td>
                         <td class="py-3 px-6 text-center">{{ mensagem.intervalo_disparo }}</td>
                         <td class="py-3 px-6 text-center">{{ mensagem.mensagem_notificacao }}</td>
+                        <td class="py-3 px-6 text-center">
+                            {% if mensagem.midia %}
+                                <a href="{% url 'gerar_presigned_url' mensagem.midia.id %}" target="_blank" class="text-blue-500 hover:underline">Ver arquivo</a>
+                            {% else %}
+                                Sem mídia
+                            {% endif %}
+                        </td>
                         <td class="py-3 px-6 text-center flex items-center justify-center">
                             <!-- Botão para editar -->
                             <a href="{% url 'editar_aula' mensagem.id %}" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 mr-2">Editar</a>

@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block titulo %}Upload de Mídia{% endblock %}
+
+{% block conteudo %}
+<div class="bg-gray-100 flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white p-8 rounded-lg shadow-lg w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center text-gray-800">Upload de Mídia</h2>
+
+        <!-- Exibe erros gerais do formulário -->
+        {% if form.errors %}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                <ul>
+                    {% for field, errors in form.errors.items %}
+                        {% for error in errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <!-- Campo Nome da Mídia -->
+            <div class="mb-4">
+                <label for="nome" class="block text-gray-700 font-semibold mb-2">Nome da Mídia</label>
+                {{ form.nome }}
+                {% if form.nome.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.nome.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Campo Tipo -->
+            <div class="mb-4">
+                <label for="tipo" class="block text-gray-700 font-semibold mb-2">Tipo de Mídia</label>
+                {{ form.tipo }}
+                {% if form.tipo.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.tipo.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Campo Descrição -->
+            <div class="mb-4">
+                <label for="descricao" class="block text-gray-700 font-semibold mb-2">Descrição (opcional)</label>
+                {{ form.descricao }}
+                {% if form.descricao.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.descricao.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Campo Arquivo -->
+            <div class="mb-4">
+                <label for="arquivo" class="block text-gray-700 font-semibold mb-2">Arquivo da Mídia</label>
+                {{ form.arquivo }}
+                {% if form.arquivo.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.arquivo.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Botão de Enviar -->
+            <div class="flex justify-center">
+                <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+                    Enviar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

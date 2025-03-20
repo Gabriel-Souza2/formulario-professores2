@@ -10,6 +10,49 @@
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
 <body class="bg-gray-100 min-h-screen">
+    <nav class="bg-white border-b border-gray-300 p-4">
+        <div class="container mx-auto flex justify-between items-center">
+            <!-- Logo e Saudação à esquerda -->
+            <a href="/" class="text-lg font-bold text-color-primary">T3A Cannon</a>
+
+            <div class="flex items-center justify-center space-x-5">
+
+                <a href="{% url 'listar_aulas' %}" class="link-nav">
+                    Mensagens
+                </a>
+
+                <a href="{% url 'listar_midias' %}" class="link-nav">
+                    Mídias
+                </a>
+
+                {% if not status %}
+                    <a href="{% url 'instancia' %}" class="text-red-500 hover:text-red-700">
+                        Conectar Whatsapp
+                    </a>
+                {% else %}
+                    <a href="{% url 'desconectar_instancia' %}" class="text-green-500 hover:text-red-700">
+                        Desconectar Instância
+                    </a>
+                {% endif %}
+            </div>
+            
+            <!-- Botão de Logout à direita -->
+            <div class="ml-2">
+                {% if user.is_authenticated %}
+                    <form method="POST" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600">
+                            Logout
+                        </button>
+                    </form>
+                {% else %}
+                    <a href="{% url 'login' %}" class="bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600">
+                        Login
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
     
     {% block conteudo %}
     <!-- Aqui o formulário será inserido nos templates filhos -->

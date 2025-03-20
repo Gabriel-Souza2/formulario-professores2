@@ -45,8 +45,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_celery_beat',
-    'formulario_professores'
+    'storages',
+    'formulario_professores',
 ]
+
+# Configurações de arquivo estático e de mídia no S3
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
 
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
@@ -167,3 +171,5 @@ ZAPI_TOKEN = '82861221A5071FE5B9F1F222'
 ZAPI_CLIENT_TOKEN = 'Fcf0d9d77aa9f4050b3988369b52f6dfbS'
 
 ZAPI_PARTNER_TOKEN='eyJhbGciOiJIUzI1NiJ9.eyJpYXQiOjQ4OTQzNzE4MjksInN1YiI6InQzYWNvbnRhY3RAZ21haWwuY29tIiwiaXNzIjoiZW1GaGNDMXpaV04xY21sMGVTMWhjR2s9IiwiYXVkIjoiZW1GaGNDMWhjR2s9IiwiZXhwIjo0ODk0MzcxODI5LCJvbkRlbWFuZCI6dHJ1ZSwicm9sZSI6IkVOVEVSUFJJU0UiLCJpbnRlZ3JhdG9yIjp0cnVlLCJ0ZW5hbnRPd25lciI6IlpXMWhhV3hBWm05MWNuQnBlR1ZzTG1sMCJ9.gC2Rvk6-2CRrvLV3EB1ifFP-P7an2Qq42EreJrqr8Mo'
+
+

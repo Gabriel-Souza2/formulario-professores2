@@ -947,3 +947,30 @@ video {
 .focus\:ring-opacity-50:focus {
   --tw-ring-opacity: 0.5;
 }
+
+
+.bg-primary {
+  background-color: #1e4b8f;
+}
+
+.color-primary {
+  background-color: #1e4b8f;
+}
+
+.text-color-primary {
+  color: #1e4b8f;
+}
+
+.text-color-secondary {
+  color: #4bc4f2;
+}
+
+.link-nav {
+  font-size: 16px;
+  color: #4bc4f2;
+}
+
+.link-nav:hover {
+  color: #1e4b8f;
+  font-weight: bold;
+}

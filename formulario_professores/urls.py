@@ -23,4 +23,12 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
 
+    path('upload/', views.upload_midia, name='upload_midia'),
+
+    path('midias/', views.listar_midias, name='listar_midias'),
+    path('midia/editar/<int:midia_id>/', views.editar_midia, name='editar_midia'),
+    path('midia/excluir/<int:midia_id>/', views.excluir_midia, name='excluir_midia'),
+    path('upload/', views.upload_midia, name='upload_midia'),
+    path('presigned_url/<int:midia_id>', views.gerar_presigned_url, name='gerar_presigned_url'),
+
 ]

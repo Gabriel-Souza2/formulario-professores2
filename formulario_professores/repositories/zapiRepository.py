@@ -112,6 +112,86 @@ class ZapiRepository:
 
         except requests.exceptions.RequestException as e:
             return {"status": "error", "message": str(e)}  # Retorna erro caso ocorra alguma exceçã
+        
+    @staticmethod
+    def enviar_mensagem(id_instancia, token_instancia, client_token, contato, mensagem):
 
+        zapi_url = f"https://api.z-api.io/instances/{id_instancia}/token/{token_instancia}/send-text"
+    
+        # Conteúdo da mensagem a ser enviada
+        payload = {
+            "phone": contato,
+            "message": f"{mensagem}"
+        }
+
+        # Fazer a requisição POST para a API da Z-API
+        try:
+            response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': client_token})
+            response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
+            return response.json()  # Retorna a resposta da API se tudo ocorrer bem
+        except requests.RequestException as e:
+            print(f"Erro ao enviar a mensagem para o WhatsApp: {e}")
+            return None
+
+    @staticmethod
+    def enviar_imagem(id_instancia, token_instancia, client_token, contato, imagem):
+
+        zapi_url = f"https://api.z-api.io/instances/{id_instancia}/token/{token_instancia}/send-image"
+    
+        # Conteúdo da mensagem a ser enviada
+        payload = {
+            "phone": contato,
+            "image": f"{imagem}"
+        }
+
+        # Fazer a requisição POST para a API da Z-API
+        try:
+            response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': client_token})
+            response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
+            return response.json()  # Retorna a resposta da API se tudo ocorrer bem
+        except requests.RequestException as e:
+            print(f"Erro ao enviar a imagem para o WhatsApp: {e}")
+            return None
+        
+    @staticmethod
+    def enviar_audio(id_instancia, token_instancia, client_token, contato, audio):
+
+        zapi_url = f"https://api.z-api.io/instances/{id_instancia}/token/{token_instancia}/send-audio"
+    
+        # Conteúdo da mensagem a ser enviada
+        payload = {
+            "phone": contato,
+            "audio": f"{audio}"
+        }
+
+        # Fazer a requisição POST para a API da Z-API
+        try:
+            response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': client_token})
+            response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
+            return response.json()  # Retorna a resposta da API se tudo ocorrer bem
+        except requests.RequestException as e:
+            print(f"Erro ao enviar a imagem para o WhatsApp: {e}")
+            return None
+
+
+    @staticmethod
+    def enviar_video(id_instancia, token_instancia, client_token, contato, video):
+
+        zapi_url = f"https://api.z-api.io/instances/{id_instancia}/token/{token_instancia}/send-video"
+    
+        # Conteúdo da mensagem a ser enviada
+        payload = {
+            "phone": contato,
+            "video": f"{video}"
+        }
+
+        # Fazer a requisição POST para a API da Z-API
+        try:
+            response = requests.post(zapi_url, json=payload, headers={'Content-Type': "application/json", 'Client-Token': client_token})
+            response.raise_for_status()  # Levanta uma exceção para status HTTP >= 400
+            return response.json()  # Retorna a resposta da API se tudo ocorrer bem
+        except requests.RequestException as e:
+            print(f"Erro ao enviar a imagem para o WhatsApp: {e}")
+            return None
 
 

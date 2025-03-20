@@ -1,11 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .forms import MensagemForm
-from .models import Mensagem, Instancia, Enviadas, UserMessageLimit
-
+from .forms import MensagemForm, MidiaForm
+from .models import Mensagem, Instancia, Enviadas, UserMessageLimit, Midia, MidiaMensagem
+from django.http import JsonResponse
 from .repositories import ZapiRepository
 import uuid
 from django.utils.timezone import now
+
 
 import json
 
@@ -45,16 +46,24 @@ def listar_aulas(request):
         semana = ['Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado', 'Domingo']
         dias_disparos = [semana[int(dia)] for dia in mensagem.dias_disparo]
 
+        midia_mensagem = mensagem.mensagem_midias.first()
+
+        if midia_mensagem:
+            midia = midia_mensagem.midia
+        else:
+            midia = None
+
         mensagens_formatadas.append({
             'dias_disparo': ", ".join(dias_disparos),
             'horario_disparo': mensagem.horario_disparo,
             'contato': ", ".join(mensagem.contato),
             'intervalo_disparo': mensagem.intervalo_disparo,
             'mensagem_notificacao': mensagem.mensagem_notificacao,
-            'id': mensagem.id
+            'id': mensagem.id,
+            'midia': midia
         })
 
-    # 📊 **Calculando as mensagens enviadas hoje pelo usuário**
+    # 📊 **Calculando as mensagens enviadas hoje pelo usuário
     hoje = now().date()
     mensagens_enviadas = Enviadas.objects.filter(user=request.user, data_envio__date=hoje).count()
 
@@ -66,29 +75,60 @@ def listar_aulas(request):
         'mensagens': mensagens_formatadas,
         'status': status,
         'mensagens_enviadas': mensagens_enviadas,
-        'limite_diario': limite_diario
+        'limite_diario': limite_diario,
     })
 
 @login_required
 def cadastrar_aula(request):
+    midias = Midia.objects.filter(usuario=request.user)
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+    status = result.get('connected', False)
     if request.method == 'POST':        
         form = MensagemForm(request.POST)
-        print(form)
         if form.is_valid():
-            aula = form.save(commit=False)  # Não salva ainda no banco de dados
-            aula.usuario = request.user  # Associa o usuário logado à aula
-            aula.save()  # Agora salva no banco de dados
+            menssagem = form.save(commit=False)  # Não salva ainda no banco de dados
+            menssagem.usuario = request.user  # Associa o usuário logado à menssagem
+            menssagem.save()  # Agora salva no banco de dados
+
+            id_midia = request.POST.get('midia')
+
+            if id_midia:
+
+                midia = Midia.objects.filter(id=id_midia).first()
+
+                MidiaMensagem.objects.create(
+                    mensagem = menssagem,
+                    midia = midia
+                )
+
             return redirect('listar_aulas')  # Redireciona para a listagem de aulas
         else:
             print(form.errors)
     else:
         form = MensagemForm()
 
-    return render(request, 'formulario.html', {'form': form, 'titulo': 'Cadastrar mensagem', 'mensagem_botao': 'Enviar'})
+    return render(request, 'formulario.html', {
+        'form': form, 
+        'titulo': 'Cadastrar mensagem', 
+        'mensagem_botao': 'Enviar', 
+        'midias': midias,
+        'status': status
+    })
 
 @login_required
 def editar_aula(request, mensagem_id):
     mensagem = get_object_or_404(Mensagem, id=mensagem_id)  # Busca a aula pelo ID ou retorna 404
+    midia_mensagem = mensagem.mensagem_midias.first()
+    midias = Midia.objects.filter(usuario=request.user)
+
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+    status = result.get('connected', False)
+    if midia_mensagem:
+        midia = midia_mensagem.midia
+    else:
+        midia = None
     if request.method == 'POST':
         form = MensagemForm(request.POST, instance=mensagem)
         if form.is_valid():
@@ -96,7 +136,15 @@ def editar_aula(request, mensagem_id):
             return redirect('listar_aulas')
     else:
         form = MensagemForm(instance=mensagem)
-    return render(request, 'formulario.html', {'form': form, 'mensagem': mensagem, 'titulo': 'Editar Mensagem', 'mensagem_botao': 'Salvar'})
+    return render(request, 'formulario.html', {
+        'form': form, 
+        'mensagem': mensagem, 
+        'titulo': 'Editar Mensagem', 
+        'mensagem_botao': 'Salvar', 
+        'midia_select': midia, 
+        'midias': midias,
+        'status': status
+    })
 
 @login_required
 def excluir_aula(request, aula_id):
@@ -232,3 +280,68 @@ def desconectar_instancia(request):
             })
         return render(request, 'listar.html', {'mensagens': mensagens_formatadas, 'status': status})
 
+@login_required
+def upload_midia(request):
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+    status = result.get('connected', False)
+
+    if request.method == "POST":
+        form = MidiaForm(request.POST, request.FILES)
+        if form.is_valid():
+            midia = form.save(commit=False) # Isso irá salvar o arquivo e gerar o link
+            midia.usuario = request.user
+            midia.save()
+
+            midias = Midia.objects.filter(usuario=request.user)
+            return render(request, 'listar_midias.html', {'form': form, 'midias': midias})
+    else:
+        form = MidiaForm()
+    return render(request, 'upload.html', {'form': form, 'status': status})
+
+@login_required
+def listar_midias(request):
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+    status = result.get('connected', False)
+
+    midias = Midia.objects.filter(usuario=request.user)  # Filtra apenas mídias do usuário logado
+    return render(request, 'listar_midias.html', {'midias': midias, 'status': status})
+
+@login_required
+def editar_midia(request, midia_id):
+    midia = get_object_or_404(Midia, id=midia_id, usuario=request.user)  # Garante que só o dono pode editar
+
+    instancia = Instancia.objects.filter(usuario=request.user).first()
+    result = ZapiRepository.get_qrcode(instancia.id_instancia, instancia.token_instancia)
+    status = result.get('connected', False)
+
+    if request.method == "POST":
+        form = MidiaForm(request.POST, request.FILES, instance=midia)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_midias')
+    else:
+        form = MidiaForm(instance=midia)
+
+    return render(request, 'editar_midia.html', {'form': form, 'status': status})
+
+@login_required
+def excluir_midia(request, midia_id):
+    midia = get_object_or_404(Midia, id=midia_id, usuario=request.user)
+    midia.delete()
+    return redirect('listar_midias')
+
+def gerar_presigned_url(request, midia_id):
+    # Obtém o objeto Midia
+    midia = Midia.objects.get(id=midia_id)
+    
+    # Chama o método get_presigned_url
+    url = midia.get_presigned_url()
+    
+    if url:
+        # Redireciona para o URL gerado
+        return redirect(url)
+    else:
+        # Se não houver URL (caso o arquivo não tenha sido encontrado), redireciona para uma página de erro ou outra URL
+        return redirect('erro')  # Substitua 'erro' pela URL ou view de erro que você deseja
